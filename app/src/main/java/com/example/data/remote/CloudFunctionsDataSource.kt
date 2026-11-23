@@ -21,6 +21,9 @@ class CloudFunctionsDataSource @Inject constructor(
         return (result.data as? Map<String, Any?>) ?: emptyMap()
     }
 
+    suspend fun bootstrapSuperAdmin(): Map<String, Any?> =
+        call("bootstrapSuperAdmin", emptyMap())
+
     suspend fun provisionUser(payload: Map<String, Any?>): Map<String, Any?> =
         call("provisionUser", payload)
 

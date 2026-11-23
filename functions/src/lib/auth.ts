@@ -2,12 +2,17 @@ import * as admin from "firebase-admin";
 import { CallableRequest, HttpsError } from "firebase-functions/v2/https";
 
 export type UserRole = "super_admin" | "store_admin" | "manager" | "employee";
+export const SUPER_ADMIN_EMAIL = "amitdaskishanganj@gmail.com";
 
 export interface CallerContext {
   uid: string;
   role: UserRole;
   employeeId: string;
   storeIds: string[];
+}
+
+export function isDesignatedSuperAdminEmail(email?: string | null): boolean {
+  return typeof email === "string" && email.trim().toLowerCase() === SUPER_ADMIN_EMAIL;
 }
 
 export function requireCaller(
@@ -22,7 +27,10 @@ export function requireCaller(
     throw new HttpsError("permission-denied", "Account is disabled.");
   }
 
-  const role = token.role as UserRole | undefined;
+  let role = token.role as UserRole | undefined;
+  if (!role && isDesignatedSuperAdminEmail(token.email as string | undefined)) {
+    role = "super_admin";
+  }
   if (!role || !["super_admin", "store_admin", "manager", "employee"].includes(role)) {
     throw new HttpsError("permission-denied", "Verified role claim missing.");
   }

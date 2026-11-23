@@ -7,34 +7,34 @@
       "organization": {
         "branding": {
           ".read": true,
-          ".write": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'"
+          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com')"
         },
         "profile": {
           ".read": "auth != null && auth.token.disabled !== true",
-          ".write": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'"
+          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com')"
         },
         "settings": {
           ".read": "auth != null && auth.token.disabled !== true",
-          ".write": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'"
+          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com')"
         },
         "policies": {
           ".read": "auth != null && auth.token.disabled !== true",
-          ".write": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'"
+          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com')"
         }
       },
 
       "stores": {
-        ".read": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'",
+        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com')",
         "$storeId": {
-          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true)",
-          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true && data.exists() && newData.child('status').val() === data.child('status').val()))"
+          ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true)",
+          ".write": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true && data.exists() && newData.child('status').val() === data.child('status').val()))"
         }
       },
 
       "users": {
-        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.role === 'store_admin')",
         "$uid": {
-          ".read": "auth != null && auth.token.disabled !== true && (auth.uid === $uid || auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+          ".read": "auth != null && auth.token.disabled !== true && (auth.uid === $uid || (auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.role === 'store_admin')",
           ".write": false,
           "profile": {
             "phone": {
@@ -56,9 +56,9 @@
       },
 
       "employees": {
-        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin' || auth.token.role === 'manager')",
+        ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.role === 'store_admin' || auth.token.role === 'manager')",
         "$employeeId": {
-          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.employeeId === $employeeId || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + data.child('currentAssignment/storeId').val()).val() === true))",
+          ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.employeeId === $employeeId || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + data.child('currentAssignment/storeId').val()).val() === true))",
           ".write": false,
           "profile": {
             "phone": {
@@ -78,7 +78,7 @@
             }
           },
           "salaryPrivate": {
-            ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.employeeId === $employeeId)",
+            ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.employeeId === $employeeId)",
             ".write": false
           }
         }
@@ -87,30 +87,30 @@
       "departments": {
         ".read": "auth != null && auth.token.disabled !== true",
         "$departmentId": {
-          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + newData.child('storeId').val()).val() === true))"
+          ".write": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + newData.child('storeId').val()).val() === true))"
         }
       },
 
       "shifts": {
         ".read": "auth != null && auth.token.disabled !== true",
         "$shiftId": {
-          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + newData.child('storeId').val()).val() === true))"
+          ".write": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + newData.child('storeId').val()).val() === true))"
         }
       },
 
       "attendance": {
-        ".read": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'",
+        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com')",
         "$storeId": {
-          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))",
+          ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))",
           "$employeeId": {
-            ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.employeeId === $employeeId || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))",
+            ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.employeeId === $employeeId || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))",
             ".write": false
           }
         }
       },
 
       "attendanceEvents": {
-        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.role === 'store_admin')",
         ".write": false
       },
 
@@ -130,32 +130,32 @@
 
       "leaveBalances": {
         "$employeeId": {
-          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin' || auth.token.role === 'manager' || auth.token.employeeId === $employeeId)",
+          ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.role === 'store_admin' || auth.token.role === 'manager' || auth.token.employeeId === $employeeId)",
           ".write": false
         }
       },
 
       "holidays": {
         "$storeId": {
-          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true)",
-          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))"
+          ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true)",
+          ".write": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))"
         }
       },
 
       "payroll": {
-        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.role === 'store_admin')",
         ".write": false
       },
 
       "salarySlips": {
         "$employeeId": {
-          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.employeeId === $employeeId)",
+          ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.employeeId === $employeeId)",
           ".write": false
         }
       },
 
       "devices": {
-        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.role === 'store_admin')",
         ".write": false
       },
 
@@ -166,7 +166,7 @@
 
       "notifications": {
         "$notificationId": {
-          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || data.child('targetUid').val() === auth.uid)",
+          ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || data.child('targetUid').val() === auth.uid)",
           ".write": false
         }
       },
@@ -177,19 +177,19 @@
       },
 
       "auditLogs": {
-        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.role === 'store_admin')",
         ".write": false
       },
 
       "statistics": {
         "$storeId": {
-          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))",
+          ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))",
           ".write": false
         }
       },
 
       "indexes": {
-        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".read": "auth != null && auth.token.disabled !== true && ((auth.token.role === 'super_admin' || auth.token.email === 'amitdaskishanganj@gmail.com') || auth.token.role === 'store_admin')",
         ".write": false
       }
     }

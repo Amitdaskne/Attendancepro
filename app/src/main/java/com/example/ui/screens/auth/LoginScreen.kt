@@ -664,6 +664,12 @@ private fun DedicatedPortalLoginStage(
                             value = email,
                             onValueChange = { email = it },
                             label = { Text(if (isAdmin) "Admin Work Email" else "Employee Email") },
+                            placeholder = {
+                                Text(
+                                    text = if (isAdmin) "amitdaskishanganj@gmail.com" else "employee@company.com",
+                                    color = CoolSlate.copy(alpha = 0.6f),
+                                )
+                            },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Filled.Email,

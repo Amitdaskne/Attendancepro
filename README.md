@@ -72,7 +72,7 @@ Download a Firebase Admin SDK service account JSON from Firebase Console → Pro
 
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/serviceAccountKey.json
-export SUPER_ADMIN_EMAIL="admin@yourcompany.com"
+export SUPER_ADMIN_EMAIL="amitdaskishanganj@gmail.com"
 export SUPER_ADMIN_PASSWORD="StrongPassword!2026"
 export SUPER_ADMIN_NAME="Organization Super Admin"
 npx ts-node scripts/seed.ts

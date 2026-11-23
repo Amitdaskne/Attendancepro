@@ -5,7 +5,13 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onValueCreated } from "firebase-functions/v2/database";
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
-import { assertStoreScope, requireCaller, UserRole } from "./lib/auth";
+import {
+  assertStoreScope,
+  isDesignatedSuperAdminEmail,
+  requireCaller,
+  SUPER_ADMIN_EMAIL,
+  UserRole,
+} from "./lib/auth";
 import {
   computeNetPay,
   computeSummaryFromEvents,
@@ -1480,6 +1486,96 @@ export const signCloudinaryUpload = onCall(async (request) => {
   );
 
   return { cloudName, apiKey, timestamp, folder, signature };
+});
+
+/**
+ * Auto-bootstraps the designated Super Admin (amitdaskishanganj@gmail.com) custom claims,
+ * /attendance/users/{uid} node, and default /attendance/organization config on first login.
+ */
+export const bootstrapSuperAdmin = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Authentication required.");
+  }
+  const email = (request.auth.token.email as string | undefined) || "";
+  if (!isDesignatedSuperAdminEmail(email)) {
+    throw new HttpsError(
+      "permission-denied",
+      `Only the designated Super Admin (${SUPER_ADMIN_EMAIL}) can bootstrap.`
+    );
+  }
+
+  const uid = request.auth.uid;
+  const userRecord = await admin.auth().getUser(uid);
+  const fullName = userRecord.displayName || "Super Admin";
+  const employeeId = `ADMIN-${uid.slice(0, 6).toUpperCase()}`;
+  const now = admin.database.ServerValue.TIMESTAMP;
+
+  await admin.auth().setCustomUserClaims(uid, {
+    role: "super_admin",
+    employeeId,
+    storeIds: [],
+    disabled: false,
+  });
+
+  const orgSnap = await db().ref("attendance/organization").get();
+  if (!orgSnap.exists()) {
+    await db().ref("attendance/organization").set({
+      profile: {
+        name: "Attendance Pro",
+        legalName: "Attendance Pro",
+        supportEmail: SUPER_ADMIN_EMAIL,
+        supportPhone: "",
+        timezone: "Asia/Kolkata",
+        currency: "INR",
+      },
+      branding: {
+        appTitle: "Attendance Pro",
+        logoUrl: "",
+        primaryColorHex: "#0F172A",
+        accentColorHex: "#00E5FF",
+        tagline: "Multi-Store Workforce Intelligence",
+      },
+      settings: {
+        defaultGraceMinutes: 10,
+        halfDayThresholdMinutes: 240,
+        absentThresholdMinutes: 120,
+        overtimeRequiresApproval: true,
+        maxOfflineQueueHours: 12,
+        gpsRetentionDays: 90,
+      },
+      policies: {
+        leaveTypes: ["CASUAL", "SICK", "EARNED", "UNPAID"],
+        defaultAnnualLeaveDays: { CASUAL: 12, SICK: 10, EARNED: 15 },
+        payrollCycleDay: 1,
+        allowMultipleBreaks: true,
+      },
+      updatedAt: now,
+    });
+  }
+
+  await db().ref(`attendance/users/${uid}`).update({
+    uid,
+    employeeId,
+    profile: {
+      fullName,
+      email: SUPER_ADMIN_EMAIL,
+      phone: userRecord.phoneNumber || "",
+      photoUrl: userRecord.photoURL || "",
+    },
+    role: "super_admin",
+    status: "ACTIVE",
+    updatedAt: now,
+  });
+
+  await writeAuditEntry({
+    actorUid: uid,
+    actorRole: "super_admin",
+    action: "BOOTSTRAP_SUPER_ADMIN",
+    target: `users/${uid}`,
+    afterSummary: `Bootstrapped Super Admin custom claims for ${SUPER_ADMIN_EMAIL}`,
+  });
+
+  return { ok: true, uid, role: "super_admin", employeeId };
 });
 
 function buildSimplePdfBuffer(title: string, lines: string[]): Promise<Buffer> {

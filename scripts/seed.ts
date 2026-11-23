@@ -3,22 +3,24 @@
  *
  * Usage:
  *   export GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccountKey.json
- *   export SUPER_ADMIN_EMAIL=admin@yourcompany.com
+ *   export SUPER_ADMIN_EMAIL=amitdaskishanganj@gmail.com
  *   export SUPER_ADMIN_PASSWORD="ChangeMeStrongPass!23"
- *   export SUPER_ADMIN_NAME="Organization Super Admin"
+ *   export SUPER_ADMIN_NAME="Super Admin"
  *   npx ts-node scripts/seed.ts
  */
 import * as admin from "firebase-admin";
 
+const DEFAULT_SUPER_ADMIN_EMAIL = "amitdaskishanganj@gmail.com";
+
 async function main() {
-  const email = process.env.SUPER_ADMIN_EMAIL;
+  const email = (process.env.SUPER_ADMIN_EMAIL || DEFAULT_SUPER_ADMIN_EMAIL).trim().toLowerCase();
   const password = process.env.SUPER_ADMIN_PASSWORD;
   const fullName = process.env.SUPER_ADMIN_NAME || "Super Admin";
   const orgName = process.env.ORG_NAME || "Attendance Pro";
 
   if (!email || !password || password.length < 8) {
     console.error(
-      "ERROR: Set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD (min 8 chars) in environment variables."
+      "ERROR: Set SUPER_ADMIN_PASSWORD (min 8 chars) in environment variables (SUPER_ADMIN_EMAIL defaults to amitdaskishanganj@gmail.com)."
     );
     process.exit(1);
   }
@@ -46,9 +48,9 @@ async function main() {
     branding: {
       appTitle: "Attendance Pro",
       logoUrl: "",
-      primaryColorHex: "#171717",
-      accentColorHex: "#FFC400",
-      tagline: "Multi-Store Workforce Attendance",
+      primaryColorHex: "#0F172A",
+      accentColorHex: "#00E5FF",
+      tagline: "Multi-Store Workforce Intelligence",
     },
     settings: {
       defaultGraceMinutes: 10,

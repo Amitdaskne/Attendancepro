@@ -1,5 +1,6 @@
 package com.example.data.repository
 
+import com.example.data.remote.CloudFunctionsDataSource
 import com.example.data.remote.RtdbPaths
 import com.example.domain.model.UserRole
 import com.example.domain.model.UserSession
@@ -26,7 +27,12 @@ sealed interface SessionState {
 class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
     private val database: FirebaseDatabase,
+    private val cloudFunctions: CloudFunctionsDataSource,
 ) {
+    companion object {
+        const val SUPER_ADMIN_EMAIL = "amitdaskishanganj@gmail.com"
+    }
+
     fun observeAuthUid(): Flow<String?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             trySend(firebaseAuth.currentUser?.uid)
@@ -47,11 +53,27 @@ class AuthRepository @Inject constructor(
 
     suspend fun resolveCurrentSession(forceTokenRefresh: Boolean = true): UserSession {
         val user = auth.currentUser ?: error("Not signed in")
-        val tokenResult = user.getIdToken(forceTokenRefresh).await()
-        val claims = tokenResult.claims
+        var tokenResult = user.getIdToken(forceTokenRefresh).await()
+        var claims = tokenResult.claims
 
-        val claimRole = UserRole.fromClaim(claims["role"]?.toString())
-            ?: error("Account role claim is missing. Contact your Super Admin to provision access.")
+        val isDesignatedSuperAdmin = user.email.equals(SUPER_ADMIN_EMAIL, ignoreCase = true)
+        var claimRole = UserRole.fromClaim(claims["role"]?.toString())
+
+        // Auto-bootstrap server custom claims for the designated Super Admin on first login
+        if (claimRole == null && isDesignatedSuperAdmin) {
+            runCatching {
+                cloudFunctions.bootstrapSuperAdmin()
+                tokenResult = user.getIdToken(true).await()
+                claims = tokenResult.claims
+                claimRole = UserRole.fromClaim(claims["role"]?.toString())
+            }
+            if (claimRole == null) {
+                claimRole = UserRole.SUPER_ADMIN
+            }
+        }
+
+        val resolvedRole = claimRole
+            ?: error("Account role claim is missing. Contact your Super Admin ($SUPER_ADMIN_EMAIL) to provision access.")
 
         val claimDisabled = (claims["disabled"] as? Boolean) == true
         val claimEmployeeId = claims["employeeId"]?.toString().orEmpty()
@@ -69,7 +91,14 @@ class AuthRepository @Inject constructor(
         val isDisabled = claimDisabled || (userRecord != null && !userRecord.isActive)
 
         val mergedStoreIds = (claimStoreIds + (userRecord?.storeIds ?: emptyList())).distinct()
-        val employeeId = claimEmployeeId.ifBlank { userRecord?.employeeId ?: user.uid }
+        val employeeId = claimEmployeeId.ifBlank {
+            userRecord?.employeeId?.ifBlank { null }
+                ?: if (resolvedRole == UserRole.SUPER_ADMIN) {
+                    "ADMIN-${user.uid.take(6).uppercase()}"
+                } else {
+                    user.uid
+                }
+        }
 
         // Best-effort FCM token sync
         syncFcmToken(user.uid)
@@ -80,7 +109,7 @@ class AuthRepository @Inject constructor(
             displayName = userRecord?.profile?.fullName?.ifBlank { user.displayName.orEmpty() }
                 ?: user.displayName.orEmpty().ifBlank { user.email.orEmpty().substringBefore("@") },
             photoUrl = userRecord?.profile?.photoUrl.orEmpty(),
-            role = claimRole,
+            role = resolvedRole,
             employeeId = employeeId,
             assignedStoreIds = mergedStoreIds,
             primaryStoreId = mergedStoreIds.firstOrNull().orEmpty(),
