@@ -25,11 +25,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -70,10 +70,18 @@ jobs:
       - name: Lint, Unit Test, and Assemble Debug APK
         run: |
           if [ -x ./gradlew ]; then
-            ./gradlew --no-daemon lintDebug testDebugUnitTest assembleDebug
+            ./gradlew --no-daemon --stacktrace lintDebug testDebugUnitTest assembleDebug
           else
-            gradle --no-daemon lintDebug testDebugUnitTest assembleDebug
+            gradle --no-daemon --stacktrace lintDebug testDebugUnitTest assembleDebug
           fi
+
+      - name: Upload Test & Lint Reports on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-failure-reports
+          path: app/build/reports/
+          if-no-files-found: ignore
 
       - name: Upload Debug APK artifact
         uses: actions/upload-artifact@v4
