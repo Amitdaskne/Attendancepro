@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Attendance Pro</string>
+    <string name="tagline">Multi-Store Workforce Attendance</string>
+    <string name="sign_in_title">Sign in to your workspace</string>
+    <string name="sign_in_subtitle">Organization-managed accounts only. Contact your administrator for access.</string>
+    <string name="email_label">Work Email</string>
+    <string name="password_label">Password</string>
+    <string name="sign_in_button">Sign In</string>
+    <string name="forgot_password">Reset Password</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="offline_banner_message">Offline Mode — Eligible punches will queue locally and sync on reconnect.</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="approve">Approve</string>
+    <string name="reject">Reject</string>
+    <string name="all_stores">All Stores</string>
+    <string name="permission_denied_title">Access Restricted</string>
+    <string name="permission_denied_body">Your current role does not have permission to view or modify this resource.</string>
+    <string name="account_disabled_title">Account Disabled</string>
+    <string name="account_disabled_body">Your account has been disabled by an administrator. Please contact HR or your Store Admin.</string>
+    <string name="gps_retention_notice">GPS coordinates are captured once per punch to verify store geofence compliance and are never tracked continuously.</string>
+</resources>

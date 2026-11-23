@@ -1,0 +1,36 @@
+# Android / Gradle
+*.iml
+.gradle
+.kotlin
+/local.properties
+local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+
+# Secrets & Keystores (never commit)
+.env
+*.jks
+*.keystore
+debug.keystore
+my-upload-key.jks
+serviceAccountKey.json
+*-firebase-adminsdk-*.json
+
+# Cloud Functions & Scripts
+functions/node_modules/
+functions/lib/
+functions/.env
+functions/.runtimeconfig.json
+scripts/node_modules/
+firebase-debug.log
+database-debug.log

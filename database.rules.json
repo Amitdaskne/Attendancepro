@@ -1,0 +1,197 @@
+{
+  "rules": {
+    "attendance": {
+      ".read": false,
+      ".write": false,
+
+      "organization": {
+        "branding": {
+          ".read": true,
+          ".write": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'"
+        },
+        "profile": {
+          ".read": "auth != null && auth.token.disabled !== true",
+          ".write": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'"
+        },
+        "settings": {
+          ".read": "auth != null && auth.token.disabled !== true",
+          ".write": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'"
+        },
+        "policies": {
+          ".read": "auth != null && auth.token.disabled !== true",
+          ".write": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'"
+        }
+      },
+
+      "stores": {
+        ".read": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'",
+        "$storeId": {
+          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true)",
+          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true && data.exists() && newData.child('status').val() === data.child('status').val()))"
+        }
+      },
+
+      "users": {
+        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        "$uid": {
+          ".read": "auth != null && auth.token.disabled !== true && (auth.uid === $uid || auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+          ".write": false,
+          "profile": {
+            "phone": {
+              ".write": "auth != null && auth.token.disabled !== true && auth.uid === $uid"
+            },
+            "photoUrl": {
+              ".write": "auth != null && auth.token.disabled !== true && auth.uid === $uid"
+            },
+            "updatedAt": {
+              ".write": "auth != null && auth.token.disabled !== true && auth.uid === $uid"
+            }
+          },
+          "fcmTokens": {
+            "$tokenKey": {
+              ".write": "auth != null && auth.token.disabled !== true && auth.uid === $uid"
+            }
+          }
+        }
+      },
+
+      "employees": {
+        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin' || auth.token.role === 'manager')",
+        "$employeeId": {
+          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.employeeId === $employeeId || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + data.child('currentAssignment/storeId').val()).val() === true))",
+          ".write": false,
+          "profile": {
+            "phone": {
+              ".write": "auth != null && auth.token.disabled !== true && auth.token.employeeId === $employeeId"
+            },
+            "address": {
+              ".write": "auth != null && auth.token.disabled !== true && auth.token.employeeId === $employeeId"
+            },
+            "photoUrl": {
+              ".write": "auth != null && auth.token.disabled !== true && auth.token.employeeId === $employeeId"
+            },
+            "emergencyContact": {
+              ".write": "auth != null && auth.token.disabled !== true && auth.token.employeeId === $employeeId"
+            },
+            "updatedAt": {
+              ".write": "auth != null && auth.token.disabled !== true && auth.token.employeeId === $employeeId"
+            }
+          },
+          "salaryPrivate": {
+            ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.employeeId === $employeeId)",
+            ".write": false
+          }
+        }
+      },
+
+      "departments": {
+        ".read": "auth != null && auth.token.disabled !== true",
+        "$departmentId": {
+          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + newData.child('storeId').val()).val() === true))"
+        }
+      },
+
+      "shifts": {
+        ".read": "auth != null && auth.token.disabled !== true",
+        "$shiftId": {
+          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + newData.child('storeId').val()).val() === true))"
+        }
+      },
+
+      "attendance": {
+        ".read": "auth != null && auth.token.disabled !== true && auth.token.role === 'super_admin'",
+        "$storeId": {
+          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))",
+          "$employeeId": {
+            ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.employeeId === $employeeId || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))",
+            ".write": false
+          }
+        }
+      },
+
+      "attendanceEvents": {
+        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".write": false
+      },
+
+      "attendanceCorrections": {
+        ".read": "auth != null && auth.token.disabled !== true",
+        "$requestId": {
+          ".write": "auth != null && auth.token.disabled !== true && !data.exists() && newData.child('employeeId').val() === auth.token.employeeId && newData.child('status').val() === 'PENDING' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + newData.child('storeId').val()).val() === true"
+        }
+      },
+
+      "leaveRequests": {
+        ".read": "auth != null && auth.token.disabled !== true",
+        "$requestId": {
+          ".write": "auth != null && auth.token.disabled !== true && !data.exists() && newData.child('employeeId').val() === auth.token.employeeId && newData.child('status').val() === 'PENDING' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + newData.child('storeId').val()).val() === true"
+        }
+      },
+
+      "leaveBalances": {
+        "$employeeId": {
+          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin' || auth.token.role === 'manager' || auth.token.employeeId === $employeeId)",
+          ".write": false
+        }
+      },
+
+      "holidays": {
+        "$storeId": {
+          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true)",
+          ".write": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || (auth.token.role === 'store_admin' && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))"
+        }
+      },
+
+      "payroll": {
+        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".write": false
+      },
+
+      "salarySlips": {
+        "$employeeId": {
+          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.employeeId === $employeeId)",
+          ".write": false
+        }
+      },
+
+      "devices": {
+        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".write": false
+      },
+
+      "scannerChallenges": {
+        ".read": false,
+        ".write": false
+      },
+
+      "notifications": {
+        "$notificationId": {
+          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || data.child('targetUid').val() === auth.uid)",
+          ".write": false
+        }
+      },
+
+      "announcements": {
+        ".read": "auth != null && auth.token.disabled !== true",
+        ".write": false
+      },
+
+      "auditLogs": {
+        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".write": false
+      },
+
+      "statistics": {
+        "$storeId": {
+          ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || ((auth.token.role === 'store_admin' || auth.token.role === 'manager') && root.child('attendance/users/' + auth.uid + '/storeAssignments/' + $storeId).val() === true))",
+          ".write": false
+        }
+      },
+
+      "indexes": {
+        ".read": "auth != null && auth.token.disabled !== true && (auth.token.role === 'super_admin' || auth.token.role === 'store_admin')",
+        ".write": false
+      }
+    }
+  }
+}

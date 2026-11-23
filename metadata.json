@@ -1,0 +1,6 @@
+{
+  "name": "Attendance Pro",
+  "description": "Multi-Store Enterprise Attendance Management System with role-based dashboards, dynamic QR/Aztec scanner challenges, GPS geofencing, shifts, leave, corrections, reports, payroll, and Firebase Realtime Database + Cloud Functions backend.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
