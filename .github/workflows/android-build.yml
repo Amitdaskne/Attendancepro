@@ -44,15 +44,27 @@ jobs:
             echo "app/google-services.json already present; skipping decode."
           elif [ -n "$GOOGLE_SERVICES_JSON_BASE64" ]; then
             echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > app/google-services.json
-          else
-            echo "GOOGLE_SERVICES_JSON_BASE64 secret not set and app/google-services.json missing."
+            echo "Decoded app/google-services.json from GOOGLE_SERVICES_JSON_BASE64 secret."
+          elif [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "::error::GOOGLE_SERVICES_JSON_BASE64 secret is required for tagged releases."
             exit 1
+          else
+            echo "::warning::GOOGLE_SERVICES_JSON_BASE64 secret not set and app/google-services.json missing. Proceeding with MissingGoogleServicesStrategy.WARN for CI checks. Add GOOGLE_SERVICES_JSON_BASE64 in GitHub Settings -> Secrets -> Actions to bundle Firebase config into CI APKs."
           fi
 
       - name: Restore debug keystore
         run: |
-          if [ ! -f debug.keystore ] && [ -f debug.keystore.base64 ]; then
+          if [ -f debug.keystore ]; then
+            echo "debug.keystore already present."
+          elif [ -f debug.keystore.base64 ]; then
             base64 --decode debug.keystore.base64 > debug.keystore
+            echo "Restored debug.keystore from debug.keystore.base64."
+          else
+            keytool -genkeypair -v -keystore debug.keystore \
+              -storepass android -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+            echo "Generated ephemeral CI debug.keystore."
           fi
 
       - name: Lint, Unit Test, and Assemble Debug APK
